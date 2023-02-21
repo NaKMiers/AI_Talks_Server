@@ -6,6 +6,7 @@ const PromptSchema = new Schema(
       userId: { type: String, require: true },
       type: String,
       text: String,
+      images: Array,
    },
    { timestamps: true }
 )
