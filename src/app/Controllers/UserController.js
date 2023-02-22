@@ -1,4 +1,15 @@
 const UserModel = require('../Models/UserModel')
+const multer = require('multer')
+
+const storage = multer.diskStorage({
+   destination: (req, file, cb) => {
+      cb(null, './public/imgs')
+   },
+   filename: (req, file, cb) => {
+      cb(null, req.body.name)
+   },
+})
+const upload = multer({ storage }).single('file')
 
 class UserController {
    // [GET]: /users/:id
@@ -21,14 +32,13 @@ class UserController {
       const { id: decodeId, admin } = req.body
       const id = req.params.id
 
-      if (id === decodeId || admin) {
-         await UserModel.findByIdAndDelete(id)
-      } else {
-         res.status(404).json('You do not have permission to perform this action.')
-      }
-
       try {
-         res.status(200).json()
+         if (id === decodeId || admin) {
+            await UserModel.findByIdAndDelete(id)
+            res.status(200).json()
+         } else {
+            res.status(404).json('You do not have permission to perform this action.')
+         }
       } catch (err) {
          res.status(500).json({ message: err.message })
       }
@@ -37,12 +47,68 @@ class UserController {
    // [PUT]: /users/:id
    updateUser = async function (req, res) {
       console.log('updateUser')
+      const { id: decodeId, admin } = req.body
+      const id = req.params.id
 
       try {
-         res.status(200).json()
+         if (id === decodeId || admin) {
+            res.status(200).json()
+         } else {
+            res.status(404).json('You do not have permission to perform this action.')
+         }
       } catch (err) {
          res.status(500).json({ message: err.message })
       }
+   }
+
+   // [PATCH]: /users/:id/change-theme
+   changeTheme = async function (req, res) {
+      console.log('changeTheme')
+      const { id: decodeId, admin, theme } = req.body
+      const id = req.params.id
+      console.log(id)
+
+      try {
+         if (id === decodeId || admin) {
+            const userEdited = await UserModel.findByIdAndUpdate(id, { $set: { theme } }, { new: true })
+
+            const { password, admin, ...otherDetails } = userEdited._doc
+
+            res.status(200).json(otherDetails)
+         } else {
+            res.status(404).json('You do not have permission to perform this action.')
+         }
+      } catch (err) {
+         res.status(500).json({ message: err.message })
+      }
+   }
+
+   // [PATCH]: /users/:id/change-avatar
+   changeAvatar = async function (req, res) {
+      console.log('changeAvatar')
+      const { id: decodeId, admin } = req.body
+      const id = req.params.id
+
+      upload(req, res, async () => {
+         try {
+            if (id === decodeId || admin) {
+               const imageName = req.file.filename
+               console.log(imageName)
+               const userEdited = await UserModel.findByIdAndUpdate(
+                  id,
+                  { $set: { avatar: imageName } },
+                  { new: true }
+               )
+
+               const { avatar } = userEdited._doc
+               res.status(200).json(avatar)
+            } else {
+               res.status(404).json('You do not have permission to perform this action.')
+            }
+         } catch (err) {
+            res.status(500).json({ message: err.message })
+         }
+      })
    }
 }
 
