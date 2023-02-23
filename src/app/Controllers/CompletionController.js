@@ -29,8 +29,47 @@ class CompletionController {
       const { id: decodeId, admin, prompt } = req.body
       const id = req.params.id
 
-      try {
-         if (id === decodeId || admin) {
+      // check user login or not
+      if (decodeId) {
+         // user logined
+         try {
+            if (id === decodeId || admin) {
+               if (prompt.trim() || model.trim()) {
+                  const completion = await openai.createCompletion({
+                     model: 'text-davinci-003',
+                     prompt,
+                     max_tokens: 100,
+                     temperature: 0.6,
+                  })
+
+                  const newCompletion = new PromptModel({
+                     userId: id,
+                     type: 'ai',
+                     text: completion.data.choices[0].text,
+                  })
+
+                  const newPrompt = new PromptModel({
+                     userId: id,
+                     type: 'user',
+                     text: prompt,
+                  })
+
+                  await newPrompt.save()
+                  const text = await newCompletion.save()
+
+                  res.status(200).json({ text })
+               } else {
+                  res.status(403).json('Content is empty.')
+               }
+            } else {
+               res.status(400).json('You do not have permission to perform this action.')
+            }
+         } catch (err) {
+            res.status(500).json({ message: err.message })
+         }
+      } else {
+         // user no logined
+         try {
             if (prompt.trim() || model.trim()) {
                const completion = await openai.createCompletion({
                   model: 'text-davinci-003',
@@ -38,31 +77,13 @@ class CompletionController {
                   max_tokens: 100,
                   temperature: 0.6,
                })
-
-               const newPrompt = new PromptModel({
-                  userId: id,
-                  type: 'user',
-                  text: prompt,
-               })
-
-               const newCompletion = new PromptModel({
-                  userId: id,
-                  type: 'ai',
-                  text: completion.data.choices[0].text,
-               })
-
-               await newPrompt.save()
-               const text = await newCompletion.save()
-
-               res.status(200).json({ text })
+               res.status(200).json(completion.data.choices[0].text)
             } else {
                res.status(403).json('Content is empty.')
             }
-         } else {
-            res.status(400).json('You do not have permission to perform this action.')
+         } catch (err) {
+            res.status(500).json({ message: err.message })
          }
-      } catch (err) {
-         res.status(500).json({ message: err.message })
       }
    }
 }

@@ -14,7 +14,7 @@ const UserSchema = new Schema(
       temperature: { type: Number, default: 0.5 },
       size: { type: String, default: '256x256' },
       amount: { type: Number, default: 1 },
-      status: { type: Number, default: 1 },
+      mode: { type: Number, default: 1 },
    },
    { timestamps: true }
 )
