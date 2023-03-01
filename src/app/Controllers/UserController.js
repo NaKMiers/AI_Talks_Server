@@ -15,12 +15,18 @@ class UserController {
    // [GET]: /users/:id
    getUser = async function (req, res) {
       console.log('getUser')
+      const { id: decodeId, admin } = req.body
+      const id = req.params.id
 
       try {
-         const user = await UserModel.findById(req.params.id)
-         const { password, admin, ...otherDetails } = user._doc
+         if (id === decodeId || admin) {
+            const user = await UserModel.findById(id)
+            const { password, admin, ...otherDetails } = user._doc
 
-         res.status(200).json(otherDetails)
+            res.status(200).json(otherDetails)
+         } else {
+            res.status(404).json('You do not have permission to perform this action.')
+         }
       } catch (err) {
          res.status(500).json({ message: err.message })
       }
@@ -61,28 +67,6 @@ class UserController {
       }
    }
 
-   // [PATCH]: /users/:id/change-theme
-   changeTheme = async function (req, res) {
-      console.log('changeTheme')
-      const { id: decodeId, admin, theme } = req.body
-      const id = req.params.id
-      console.log(id)
-
-      try {
-         if (id === decodeId || admin) {
-            const userEdited = await UserModel.findByIdAndUpdate(id, { $set: { theme } }, { new: true })
-
-            const { password, admin, ...otherDetails } = userEdited._doc
-
-            res.status(200).json(otherDetails)
-         } else {
-            res.status(404).json('You do not have permission to perform this action.')
-         }
-      } catch (err) {
-         res.status(500).json({ message: err.message })
-      }
-   }
-
    // [PATCH]: /users/:id/change-avatar
    changeAvatar = async function (req, res) {
       console.log('changeAvatar')
@@ -109,6 +93,25 @@ class UserController {
             res.status(500).json({ message: err.message })
          }
       })
+   }
+
+   // [PATCH]: /users/:id/change-parameter
+   changeParameter = async function (req, res) {
+      console.log('changeParameter')
+      const { id: decodeId, admin, data } = req.body
+      const id = req.params.id
+
+      try {
+         if (id === decodeId || admin) {
+            const userEdited = await UserModel.findByIdAndUpdate(id, data, { new: true })
+            const { password, admin, ...otherDetails } = userEdited._doc
+            res.status(200).json(otherDetails)
+         } else {
+            res.status(404).json('You do not have permission to perform this action.')
+         }
+      } catch (err) {
+         res.status(500).json({ message: err.message })
+      }
    }
 }
 
