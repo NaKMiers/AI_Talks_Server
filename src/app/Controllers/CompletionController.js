@@ -3,90 +3,80 @@ const PromptModel = require('../Models/PromptModel')
 
 class CompletionController {
    // [GET]: /completions/:id
-   getPrompt = async function (req, res) {
-      console.log('getPrompt')
+   getPrompts = async function (req, res) {
+      console.log('getPrompts')
       const { id: decodeId, admin } = req.body
       const id = req.params.id
 
       try {
          if (id === decodeId || admin) {
-            const prompts = PromptModel.find({ userId: id })
+            const prompts = await PromptModel.find({ userId: id, type: { $in: ['user', 'ai'] } })
 
             res.status(200).json(prompts)
          } else {
             res.status(400).json('You do not have permission to perform this action.')
          }
-
-         res.status(200).json()
       } catch (err) {
          res.status(500).json({ message: err.message })
       }
    }
 
-   // [POST]: /completions/:id
+   // [POST]: /completions/
    createCompletion = async function (req, res) {
-      console.log('create-completion')
-      const { id: decodeId, admin, prompt } = req.body
+      console.log('createCompletion')
+      const { prompt, model, maxTokens, temperature } = req.body
+
+      try {
+         if (prompt.trim()) {
+            const completion = await openai.createCompletion({
+               model: model || 'text-davinci-003',
+               prompt,
+               max_tokens: maxTokens || 100,
+               temperature: temperature || 0.6,
+            })
+
+            res.status(200).json({ text: completion.data.choices[0].text })
+         } else {
+            res.status(403).json('Content is empty.')
+         }
+      } catch (err) {
+         res.status(500).json({ message: err.message })
+      }
+   }
+
+   // [POST]:/completions/:id
+   createFullCompletion = async function (req, res) {
+      console.log('createFullCompletion')
+      const { id: decodeId, admin, prompt, model, maxTokens, temperature } = req.body
       const id = req.params.id
 
-      // check user login or not
-      if (decodeId) {
-         // user logined
-         try {
-            if (id === decodeId || admin) {
-               if (prompt.trim() || model.trim()) {
-                  const completion = await openai.createCompletion({
-                     model: 'text-davinci-003',
-                     prompt,
-                     max_tokens: 100,
-                     temperature: 0.6,
-                  })
-
-                  const newCompletion = new PromptModel({
-                     userId: id,
-                     type: 'ai',
-                     text: completion.data.choices[0].text,
-                  })
-
-                  const newPrompt = new PromptModel({
-                     userId: id,
-                     type: 'user',
-                     text: prompt,
-                  })
-
-                  await newPrompt.save()
-                  const text = await newCompletion.save()
-
-                  res.status(200).json({ text })
-               } else {
-                  res.status(403).json('Content is empty.')
-               }
-            } else {
-               res.status(400).json('You do not have permission to perform this action.')
-            }
-         } catch (err) {
-            res.status(500).json({ message: err.message })
-         }
-      } else {
-         // user no logined
-         try {
-            if (prompt.trim() || model.trim()) {
+      try {
+         if (id === decodeId || admin) {
+            if (prompt.trim()) {
                const completion = await openai.createCompletion({
-                  model: 'text-davinci-003',
+                  model: model || 'text-davinci-003',
                   prompt,
-                  max_tokens: 100,
-                  temperature: 0.6,
+                  max_tokens: maxTokens || 100,
+                  temperature: temperature || 0.6,
                })
-               res.status(200).json({
+
+               const newCompletion = new PromptModel({
+                  userId: id,
+                  type: 'ai',
                   text: completion.data.choices[0].text,
-                  createdAt: Date.now(),
                })
+
+               const completionRes = await newCompletion.save()
+
+               res.status(200).json(completionRes)
             } else {
                res.status(403).json('Content is empty.')
             }
-         } catch (err) {
-            res.status(500).json({ message: err.message })
+         } else {
+            res.status(400).json('You do not have permission to perform this action.')
          }
+      } catch (err) {
+         res.status(500).json({ message: err.message })
       }
    }
 
@@ -105,8 +95,8 @@ class CompletionController {
                   text: prompt,
                })
 
-               const prompt = await newPrompt.save()
-               res.status(200).json({ prompt })
+               const promptRes = await newPrompt.save()
+               res.status(200).json(promptRes)
             } else {
                res.status(403).json('Content is empty.')
             }
