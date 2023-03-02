@@ -9,4 +9,6 @@ router.get('/:id', authMiddleware, CompletionController.getPrompts)
 router.post('/:id', authMiddleware, CompletionController.createFullCompletion)
 router.post('/:id/prompt', authMiddleware, CompletionController.createPrompt)
 
+router.delete('/:id/clear', authMiddleware, CompletionController.clearCompletions)
+
 module.exports = router

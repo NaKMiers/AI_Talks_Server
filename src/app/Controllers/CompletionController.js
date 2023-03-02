@@ -107,6 +107,24 @@ class CompletionController {
          res.status(500).json({ message: err.message })
       }
    }
+
+   // [DELETE]: /completions/:id/clear
+   clearCompletions = async function (req, res) {
+      console.log('clearCompletions')
+      const { id: decodeId, admin } = req.body
+      const id = req.params.id
+
+      try {
+         if (id === decodeId || admin) {
+            await PromptModel.deleteMany({ userId: id, type: { $in: ['ai', 'user'] } })
+            res.status(200).json('All completions have been cleared.')
+         } else {
+            res.status(400).json('You do not have permission to perform this action.')
+         }
+      } catch (err) {
+         res.status(500).json({ message: err.message })
+      }
+   }
 }
 
 module.exports = new CompletionController()

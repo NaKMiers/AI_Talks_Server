@@ -9,4 +9,6 @@ router.get('/:id', authMiddleware, ImageController.getImages)
 router.post('/:id', authMiddleware, ImageController.generateFullImage)
 router.post('/:id/prompt', authMiddleware, ImageController.createPrompt)
 
+router.delete('/:id/clear', authMiddleware, ImageController.clearImages)
+
 module.exports = router
