@@ -26,13 +26,11 @@ class AuthController {
                const { password, admin, ...otherDetails } = user._doc
                res.status(200).json({ user: otherDetails, token })
             } else {
-               res.status(400).json({ error: true, message: 'Wrong password.' })
+               res.status(400).json({ error: 'password', message: 'Wrong password.' })
             }
          } else {
-            res.status(400).json({ error: true, message: 'User does not exists.' })
+            res.status(400).json({ error: 'username', message: 'User does not exists.' })
          }
-
-         res.status(200).json()
       } catch (err) {
          res.status(500).json({ message: err.message })
       }
@@ -68,7 +66,7 @@ class AuthController {
 
             res.status(200).json({ user: otherDetails, token })
          } else {
-            res.status(400).json({ error: true, message: 'User is already exists.' })
+            res.status(400).json({ error: 'username', message: 'User is already exists.' })
          }
 
          res.status(200).json()

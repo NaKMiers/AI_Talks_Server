@@ -1,10 +1,17 @@
 const openai = require('../../config/openai')
 const PromptModel = require('../Models/PromptModel')
 
+const editText = text => {
+   console.log('text: ', text)
+   const trimmedText = text.trim()
+   const result = trimmedText.replace(/^\W+/, '')
+   return result
+}
+
 class CompletionController {
    // [GET]: /completions/:id
    getPrompts = async function (req, res) {
-      console.log('getPrompts')
+      console.log('getPrompts') // user logined
       const { id: decodeId, admin } = req.body
       const id = req.params.id
 
@@ -23,7 +30,7 @@ class CompletionController {
 
    // [POST]: /completions/
    createCompletion = async function (req, res) {
-      console.log('createCompletion')
+      console.log('createCompletion') // user no login
       const { prompt, model, maxTokens, temperature } = req.body
 
       try {
@@ -35,7 +42,7 @@ class CompletionController {
                temperature: temperature || 0.6,
             })
 
-            res.status(200).json({ text: completion.data.choices[0].text })
+            res.status(200).json({ text: editText(completion.data.choices[0].text) })
          } else {
             res.status(403).json('Content is empty.')
          }
@@ -46,7 +53,7 @@ class CompletionController {
 
    // [POST]:/completions/:id
    createFullCompletion = async function (req, res) {
-      console.log('createFullCompletion')
+      console.log('createFullCompletion') // user logined
       const { id: decodeId, admin, prompt, model, maxTokens, temperature } = req.body
       const id = req.params.id
 
@@ -63,7 +70,7 @@ class CompletionController {
                const newCompletion = new PromptModel({
                   userId: id,
                   type: 'ai',
-                  text: completion.data.choices[0].text,
+                  text: editText(completion.data.choices[0].text),
                })
 
                const completionRes = await newCompletion.save()
@@ -82,7 +89,7 @@ class CompletionController {
 
    // [POST]: /completions/:id/prompt
    createPrompt = async function (req, res) {
-      console.log('createPrompt')
+      console.log('createPrompt') // user logined
       const { id: decodeId, admin, prompt } = req.body
       const id = req.params.id
 
@@ -110,7 +117,7 @@ class CompletionController {
 
    // [DELETE]: /completions/:id/clear
    clearCompletions = async function (req, res) {
-      console.log('clearCompletions')
+      console.log('clearCompletions') // user logined
       const { id: decodeId, admin } = req.body
       const id = req.params.id
 
