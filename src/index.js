@@ -28,3 +28,5 @@ routes(app)
 // app listening
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => console.log('Server running at port: ', PORT))
+
+module.exports = app
