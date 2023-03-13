@@ -12,8 +12,9 @@ const app = express()
 
 // .env config
 
+console.log()
 // static file config
-app.use(express.static(path.resolve(__dirname, '../', 'public')))
+app.use(express.static(path.resolve(process.cwd(), 'public')))
 
 // apply middlewares
 app.use(bodyParser.urlencoded({ extended: true, limit: '30mb' }))
