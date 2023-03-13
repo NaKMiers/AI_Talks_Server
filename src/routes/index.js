@@ -12,7 +12,8 @@ function routes(app) {
    app.use('/images', imageRouter)
 
    app.use('/', (req, res) => {
-      res.sendFile('view/Homepage.html', { root: 'src' })
+      res.send("<h1>This is AI TALKS's server</h1>")
+      // res.sendFile('view/Homepage.html', { root: 'src' })
    })
 }
 
