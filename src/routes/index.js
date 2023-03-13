@@ -12,8 +12,7 @@ function routes(app) {
    app.use('/images', imageRouter)
 
    app.use('/', (req, res) => {
-      const homepage = process.cwd() + '\\src\\view\\Homepage.html'
-      res.sendFile(homepage)
+      res.send('<h1>This is AI TALKS server</h1>')
    })
 }
 
