@@ -2,7 +2,6 @@ const openai = require('../../config/openai')
 const PromptModel = require('../Models/PromptModel')
 
 const editText = text => {
-   console.log('text: ', text)
    const trimmedText = text.trim()
    const result = trimmedText.replace(/^\W+/, '')
    return result
@@ -11,7 +10,6 @@ const editText = text => {
 class CompletionController {
    // [GET]: /completions/:id
    getPrompts = async function (req, res) {
-      console.log('getPrompts') // user logined
       const { id: decodeId, admin } = req.body
       const id = req.params.id
 

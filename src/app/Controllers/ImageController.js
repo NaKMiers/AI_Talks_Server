@@ -8,8 +8,6 @@ class ImageController {
       const { id: decodeId, admin } = req.body
       const id = req.params.id
 
-      console.log(decodeId, id)
-
       try {
          if (id === decodeId || admin) {
             const images = await PromptModel.find({
@@ -35,8 +33,6 @@ class ImageController {
          if (prompt.trim()) {
             amount > 10 ? (amount = 10) : amount
             amount < 1 ? (amount = 1) : amount
-
-            console.log(['256x256', '512x512', '1024x1024'].includes(size))
 
             const images = await openai.createImage({
                prompt,
