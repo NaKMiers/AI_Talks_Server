@@ -55,6 +55,8 @@ class CompletionController {
       const { id: decodeId, admin, prompt, model, maxTokens, temperature } = req.body
       const id = req.params.id
 
+      console.log(req.body)
+
       try {
          if (id === decodeId || admin) {
             if (prompt.trim()) {
@@ -65,14 +67,14 @@ class CompletionController {
                   temperature: temperature || 0.6,
                })
 
+               // console.log(completion)
+
                const newCompletion = new PromptModel({
                   userId: id,
                   type: 'ai',
                   text: editText(completion.data.choices[0].text),
                })
-
                const completionRes = await newCompletion.save()
-
                res.status(200).json(completionRes)
             } else {
                res.status(403).json('Content is empty.')
