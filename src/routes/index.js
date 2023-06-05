@@ -1,4 +1,3 @@
-const path = require('path')
 const authMiddleware = require('../app/Middlewares/AuthMiddleware')
 const authRouter = require('./auth')
 const userRouter = require('./user')

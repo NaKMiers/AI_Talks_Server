@@ -10,9 +10,6 @@ const routes = require('./routes')
 module.exports = routes
 const app = express()
 
-// .env config
-
-console.log()
 // static file config
 app.use(express.static(path.resolve(process.cwd(), 'public')))
 
