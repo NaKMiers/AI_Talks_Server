@@ -7,7 +7,6 @@ const ConnectDatabase = require('./config/database')
 const routes = require('./routes')
 
 // express instance
-module.exports = routes
 const app = express()
 
 // static file config
